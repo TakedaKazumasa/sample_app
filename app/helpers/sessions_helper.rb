@@ -2,7 +2,7 @@ module SessionsHelper
 
   # 渡されたユーザーでログインする
   def log_in(user)
-    session[:user_id] = user.id
+    session[:user_id] = user.id  #暗号化済みのユーザーIDを自動で作成、ブラウザを切ったら有効期限が切れる
   end
 
   # ユーザーのセッションを永続的にする
@@ -24,7 +24,7 @@ module SessionsHelper
       @current_user ||= User.find_by(id: user_id)
     elsif (user_id = cookies.signed[:user_id])
       user = User.find_by(id: user_id)
-      if user && user.authenticated?(cookies[:remember_token])
+      if user && user.authenticated?(:remember, cookies[:remember_token])
         log_in user
         @current_user = user
       end
@@ -36,7 +36,7 @@ module SessionsHelper
     !current_user.nil?
   end
 
-  # 永続的セッションを破棄する
+  # 永続的セッションを破棄する　（チェックボックスがない場合で使用）
   def forget(user)
     user.forget
     cookies.delete(:user_id)

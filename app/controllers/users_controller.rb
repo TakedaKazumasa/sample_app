@@ -17,11 +17,11 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params) #user_paramsは、下で定義
     if @user.save
-      log_in @user
-      flash[:success] = "Welcome to the Sample App!"
-      redirect_to @user
+      @user.send_activation_email
+      flash[:info] = "Please check your email to activate your account."
+      redirect_to root_url #Homeに移動
     else
       render 'new'
     end
@@ -48,15 +48,15 @@ class UsersController < ApplicationController
   end
 
 
-
   private
 
+    # 管理者権限を入れないパラメータ（StorongParameters）を設定
     def user_params
       params.require(:user).permit(:name, :email, :password,
                                    :password_confirmation)
     end
 
-    # beforeアクション
+    # 以下、beforeアクション
 
     # ログイン済みユーザーかどうか確認
     def logged_in_user
@@ -78,6 +78,4 @@ class UsersController < ApplicationController
       redirect_to(root_url) unless current_user.admin?
     end
 
-
 end
-
